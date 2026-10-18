@@ -2248,9 +2248,12 @@ export default function App() {
         }
       });
 
+      // TypeScript does not track mutations made inside the forEach callback.
+      const resolvedUpcomingSigState = upcomingSigState as SignalState;
+
       if (upcomingSigDist < 14 && phys.speedMs * 3.6 > 5 && phys.lastPassedSignalIndex !== upcomingSigIndex) {
         phys.lastPassedSignalIndex = upcomingSigIndex;
-        if (upcomingSigState === 'RED') {
+        if (resolvedUpcomingSigState === 'RED') {
           audioRef.current.playAlarm();
           setSignalViolationAlert('RED SIGNAL VIOLATION (SPAD)! Always stop before a Red Signal!');
           addPassengerReview('🤬', 'Liam K.', 'Safety Violation', 'Driver ran a RED signal! Terrifying!', -0.8, -400);
@@ -2264,9 +2267,9 @@ export default function App() {
 
       if (ctrl.autopilot && !ctrl.emergencyStop && !ctrl.doorsOpen) {
         let targetKmh = activeZone.limit * 0.9;
-        if (upcomingSigState === 'RED' && upcomingSigDist < 260) {
+        if (resolvedUpcomingSigState === 'RED' && upcomingSigDist < 260) {
           targetKmh = upcomingSigDist < 38 ? 0 : Math.min(targetKmh, (upcomingSigDist / 260) * 80);
-        } else if (upcomingSigState === 'YELLOW' && upcomingSigDist < 240) {
+        } else if (resolvedUpcomingSigState === 'YELLOW' && upcomingSigDist < 240) {
           targetKmh = Math.min(targetKmh, 45);
         }
         if (minStationDist > 0 && minStationDist < 200 && !phys.stationBoardingComplete) {
@@ -2824,12 +2827,14 @@ export default function App() {
       <header className="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
         {/* Brand, Score & Train Model Switcher */}
         <div className="flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-xl border border-white/10 px-3.5 py-2 rounded-2xl shadow-2xl pointer-events-auto">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-inner shadow-blue-300/30">
-            <Train className="w-5 h-5 text-white" />
-          </div>
+          <img
+            src="/trainx-logo.png"
+            alt="TrainX Simulator"
+            className="w-11 h-11 rounded-xl object-contain"
+          />
           <div className="pr-2.5 border-r border-white/10">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400">RailOS 3D</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-400">TrainX Simulator</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold flex items-center gap-0.5">
                 <Award className="w-3 h-3" /> {driverScore} PTS
               </span>
